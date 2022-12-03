@@ -7,6 +7,7 @@ use std::{
 
 mod calories;
 mod rock_paper_scissors;
+mod rucksack;
 
 fn read_lines_from_file(file: &str) -> Vec<String> {
     let file = File::open(file).unwrap();
@@ -72,9 +73,8 @@ mod day1 {
 }
 
 mod day2 {
-    use crate::rock_paper_scissors::{RockPaperScissors, RockPaperScissorsResult};
-
     use super::*;
+    use crate::rock_paper_scissors::{RockPaperScissors, RockPaperScissorsResult};
 
     fn solve_part1_from_file(path: &str) -> u32 {
         let lines = read_lines_from_file(path);
@@ -142,5 +142,63 @@ mod day2 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day2.txt"), 11186);
+    }
+}
+
+mod day3 {
+    use std::collections::HashSet;
+
+    use super::*;
+    use crate::{
+        rock_paper_scissors::{RockPaperScissors, RockPaperScissorsResult},
+        rucksack::Rucksack,
+    };
+
+    fn solve_part1_from_file(path: &str) -> u32 {
+        let mut priority_sum = 0;
+        for line in read_lines_from_file(path) {
+            let rucksack = Rucksack::new(line);
+            let (comp1, comp2) = rucksack.compartments();
+            let comp1: HashSet<_> = comp1.iter().copied().collect();
+            let comp2: HashSet<_> = comp2.iter().copied().collect();
+
+            let intersection: Vec<_> = comp1.intersection(&comp2).collect();
+            assert_eq!(intersection.len(), 1, "{:?} \n {:?}", comp1, comp2);
+            let duplicate_item = intersection[0];
+
+            priority_sum += duplicate_item.priority();
+        }
+        priority_sum
+    }
+
+    fn solve_part2_from_file(path: &str) -> u32 {
+        let mut priority_sum = 0;
+        for chunk in read_lines_from_file(path).chunks(3) {
+            let r1 = Rucksack::new(chunk[0].clone());
+            let r2 = Rucksack::new(chunk[1].clone());
+            let r3 = Rucksack::new(chunk[2].clone());
+            let rucksack1: HashSet<_> = r1.items().into_iter().collect();
+            let rucksack2: HashSet<_> = r2.items().into_iter().collect();
+            let rucksack3: HashSet<_> = r3.items().into_iter().collect();
+
+            let intersection_1_2: HashSet<_> =
+                rucksack1.intersection(&rucksack2).copied().collect();
+            let intersection: Vec<_> = intersection_1_2.intersection(&rucksack3).collect();
+            assert_eq!(intersection.len(), 1);
+
+            priority_sum += intersection[0].priority();
+        }
+
+        priority_sum
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day3.txt"), 7903);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day3.txt"), 2548);
     }
 }
