@@ -5,6 +5,7 @@ use std::{
     io::{self, BufRead},
 };
 
+mod assignment_pairs;
 mod calories;
 mod rock_paper_scissors;
 mod rucksack;
@@ -146,13 +147,12 @@ mod day2 {
 }
 
 mod day3 {
-    use std::collections::HashSet;
-
     use super::*;
     use crate::{
         rock_paper_scissors::{RockPaperScissors, RockPaperScissorsResult},
         rucksack::Rucksack,
     };
+    use std::collections::HashSet;
 
     fn solve_part1_from_file(path: &str) -> u32 {
         let mut priority_sum = 0;
@@ -200,5 +200,68 @@ mod day3 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day3.txt"), 2548);
+    }
+}
+
+mod day4 {
+    use super::*;
+    use crate::assignment_pairs::AssignmentPair;
+
+    fn solve_part1_from_file(path: &str) -> u32 {
+        let mut overlaps = 0;
+        for line in read_lines_from_file(path) {
+            let parts: Vec<_> = line.split(',').collect();
+            assert_eq!(parts.len(), 2);
+            let left_parts: Vec<usize> = parts[0].split('-').map(|p| p.parse().unwrap()).collect();
+            let right_parts: Vec<usize> = parts[1].split('-').map(|p| p.parse().unwrap()).collect();
+
+            assert_eq!(left_parts.len(), 2);
+            assert_eq!(right_parts.len(), 2);
+
+            let pair = AssignmentPair::new(
+                (left_parts[0], left_parts[1]),
+                (right_parts[0], right_parts[1]),
+            );
+
+            if pair.overlaps() {
+                overlaps += 1;
+            }
+        }
+
+        overlaps
+    }
+
+    fn solve_part2_from_file(path: &str) -> u32 {
+        let mut overlaps = 0;
+        for line in read_lines_from_file(path) {
+            let parts: Vec<_> = line.split(',').collect();
+            assert_eq!(parts.len(), 2);
+            let left_parts: Vec<usize> = parts[0].split('-').map(|p| p.parse().unwrap()).collect();
+            let right_parts: Vec<usize> = parts[1].split('-').map(|p| p.parse().unwrap()).collect();
+
+            assert_eq!(left_parts.len(), 2);
+            assert_eq!(right_parts.len(), 2);
+
+            let pair = AssignmentPair::new(
+                (left_parts[0], left_parts[1]),
+                (right_parts[0], right_parts[1]),
+            );
+
+            if pair.partially_overlaps() {
+                overlaps += 1;
+            }
+        }
+
+        overlaps
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day4.txt"), 567);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day4.txt"), 907);
     }
 }
