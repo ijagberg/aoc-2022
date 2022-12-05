@@ -7,6 +7,7 @@ use std::{
 
 mod assignment_pairs;
 mod calories;
+mod crate_stack;
 mod rock_paper_scissors;
 mod rucksack;
 
@@ -263,5 +264,91 @@ mod day4 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day4.txt"), 907);
+    }
+}
+
+mod day5 {
+    use super::*;
+    use crate::crate_stack::{Crate, CrateStacks};
+
+    fn parse_start_from_file(start_path: &str) -> CrateStacks {
+        let start_lines = read_lines_from_file(start_path);
+        let stacks_count = start_lines.last().unwrap().split_ascii_whitespace().count();
+        let mut crate_stacks = CrateStacks::new(stacks_count);
+
+        for (line_idx, line) in start_lines.into_iter().rev().skip(1).enumerate() {
+            for (stack_idx, crate_identifier) in line.chars().skip(1).step_by(4).enumerate() {
+                if stack_idx >= stacks_count {
+                    break;
+                }
+                if crate_identifier.is_alphabetic() {
+                    crate_stacks.add_crate(stack_idx, Crate::new(crate_identifier));
+                }
+            }
+        }
+        crate_stacks
+    }
+
+    fn solve_part1_from_files(start_path: &str, instructions_path: &str) -> String {
+        let mut crate_stacks = parse_start_from_file(start_path);
+
+        let instruction_lines = read_lines_from_file(instructions_path);
+
+        for line in instruction_lines {
+            // move 16 from 7 to 2
+            let parts: Vec<_> = line.split(' ').collect();
+            let crate_count: usize = parts[1].parse().unwrap();
+            let from_stack: usize = parts[3].parse().unwrap();
+            let to_stack: usize = parts[5].parse().unwrap();
+            for _ in 0..crate_count {
+                crate_stacks.move_crate(from_stack - 1, to_stack - 1);
+            }
+        }
+
+        crate_stacks.get_top_crates_string()
+    }
+
+    fn solve_part2_from_files(start_path: &str, instructions_path: &str) -> String {
+        let mut crate_stacks = parse_start_from_file(start_path);
+
+        let instruction_lines = read_lines_from_file(instructions_path);
+
+        for line in instruction_lines {
+            // move 16 from 7 to 2
+            let parts: Vec<_> = line.split(' ').collect();
+            let crate_count: usize = parts[1].parse().unwrap();
+            let from_stack: usize = parts[3].parse().unwrap();
+            let to_stack: usize = parts[5].parse().unwrap();
+            crate_stacks.move_crates(from_stack - 1, to_stack - 1, crate_count);
+        }
+
+        crate_stacks.get_top_crates_string()
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(
+            solve_part1_from_files("inputs/day5_start.txt", "inputs/day5_instructions.txt"),
+            "WSFTMRHPP"
+        );
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(
+            solve_part2_from_files("inputs/day5_start.txt", "inputs/day5_instructions.txt"),
+            "GSLCMFBRP"
+        );
+    }
+
+    #[test]
+    fn example1() {
+        assert_eq!(
+            solve_part2_from_files(
+                "inputs/day5_example_start.txt",
+                "inputs/day5_example_instructions.txt"
+            ),
+            "MCD"
+        );
     }
 }
