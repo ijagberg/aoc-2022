@@ -11,15 +11,16 @@ impl Marker {
         }
     }
 
-    pub fn first_marker_index(&self, marker_len: usize) -> Option<usize> {
+    pub fn marker_indices(&self, marker_len: usize) -> Vec<usize> {
+        let mut markers = Vec::new();
         for (idx, w) in self.content.windows(marker_len).enumerate() {
             let unique: HashSet<_> = w.iter().collect();
 
             if unique.len() == marker_len {
-                return Some(idx + marker_len);
+                markers.push(idx + marker_len);
             }
         }
 
-        None
+        markers
     }
 }

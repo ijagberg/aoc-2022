@@ -341,42 +341,28 @@ mod day5 {
             "GSLCMFBRP"
         );
     }
-
-    #[test]
-    fn example1() {
-        assert_eq!(
-            solve_part2_from_files(
-                "inputs/day5_example_start.txt",
-                "inputs/day5_example_instructions.txt"
-            ),
-            "MCD"
-        );
-    }
 }
 
 mod day6 {
+    use super::*;
     use crate::marker::Marker;
 
-    use super::*;
-
-    fn solve_part1_from_file(path: &str) -> usize {
+    fn solve_from_file(path: &str, marker_len: usize) -> usize {
         let mut lines = read_lines_from_file(path);
         assert_eq!(lines.len(), 1);
         let line = lines.remove(0);
 
         let marker = Marker::new(line);
 
-        marker.first_marker_index(4).unwrap()
+        *marker.marker_indices(marker_len).first().unwrap()
+    }
+
+    fn solve_part1_from_file(path: &str) -> usize {
+        solve_from_file(path, 4)
     }
 
     fn solve_part2_from_file(path: &str) -> usize {
-        let mut lines = read_lines_from_file(path);
-        assert_eq!(lines.len(), 1);
-        let line = lines.remove(0);
-
-        let marker = Marker::new(line);
-
-        marker.first_marker_index(14).unwrap()
+        solve_from_file(path, 14)
     }
 
     #[test]
