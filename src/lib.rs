@@ -8,6 +8,7 @@ use std::{
 mod assignment_pairs;
 mod calories;
 mod crate_stack;
+mod marker;
 mod rock_paper_scissors;
 mod rucksack;
 
@@ -350,5 +351,41 @@ mod day5 {
             ),
             "MCD"
         );
+    }
+}
+
+mod day6 {
+    use crate::marker::Marker;
+
+    use super::*;
+
+    fn solve_part1_from_file(path: &str) -> usize {
+        let mut lines = read_lines_from_file(path);
+        assert_eq!(lines.len(), 1);
+        let line = lines.remove(0);
+
+        let marker = Marker::new(line);
+
+        marker.first_marker_index(4).unwrap()
+    }
+
+    fn solve_part2_from_file(path: &str) -> usize {
+        let mut lines = read_lines_from_file(path);
+        assert_eq!(lines.len(), 1);
+        let line = lines.remove(0);
+
+        let marker = Marker::new(line);
+
+        marker.first_marker_index(14).unwrap()
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day6.txt"), 1343);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day6.txt"), 2193);
     }
 }
