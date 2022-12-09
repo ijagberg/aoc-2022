@@ -8,6 +8,7 @@ use std::{
 mod assignment_pairs;
 mod calories;
 mod crate_stack;
+mod file_system;
 mod marker;
 mod rock_paper_scissors;
 mod rucksack;
@@ -373,5 +374,52 @@ mod day6 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day6.txt"), 2193);
+    }
+}
+
+mod day7 {
+    use super::*;
+
+    fn solve_part1_from_file(path: &str) -> u32 {
+        let filesys = file_system::traverse_file_system(&read_lines_from_file(path));
+
+        let sizes = filesys.dir_sizes();
+        sizes
+            .into_iter()
+            .filter_map(|(dir, size)| if size <= 100000 { Some(size) } else { None })
+            .sum()
+    }
+
+    fn solve_part2_from_file(path: &str) -> u32 {
+        let filesys = file_system::traverse_file_system(&read_lines_from_file(path));
+
+        let sizes = filesys.dir_sizes();
+        let size_of_root = sizes["/"];
+        let unused_space = 70000000 - size_of_root;
+        let target = 30000000 - unused_space;
+
+        println!("size of root is {size_of_root}, which means there is {unused_space} unused space, which means we need to free up at least {target}");
+
+        let mut best = None;
+        for (dir, size) in sizes {
+            if size < target {
+                continue;
+            }
+            let diff = size.abs_diff(target);
+            if best.map(|(best_diff, _)| diff < best_diff).unwrap_or(true) {
+                best = Some((diff, size));
+            }
+        }
+        best.unwrap().1
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day7.txt"), 1315285);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day7.txt"), 9847279);
     }
 }
