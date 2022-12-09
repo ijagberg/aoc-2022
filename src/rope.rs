@@ -1,54 +1,120 @@
-use std::{collections::HashSet, str::FromStr};
+use std::{collections::HashSet, fmt::Display, str::FromStr};
 
 pub struct RopeSim {
-    head_pos: Idx,
-    tail_pos: Idx,
+    positions: Vec<Idx>,
 }
 
 impl RopeSim {
-    pub fn new() -> Self {
-        Self {
-            head_pos: Idx::new(0, 0),
-            tail_pos: Idx::new(0, 0),
+    pub fn new(positions: Vec<Idx>) -> Self {
+        if positions.is_empty() {
+            panic!()
         }
+        Self { positions }
+    }
+
+    fn tail_pos(&self) -> Idx {
+        self.positions[self.positions.len() - 1]
     }
 
     pub fn tail_visits(&mut self, motions: &[Motion]) -> usize {
         let mut visited = HashSet::new();
-        visited.insert(self.tail_pos);
+        visited.insert(self.tail_pos());
 
         for motion in motions {
             let step_diff = motion.direction.step_diff();
-            for _ in 0..motion.steps {
-                let cur_head_pos = self.head_pos;
-                let cur_tail_pos = self.tail_pos;
-
-                let new_head_pos = cur_head_pos.apply_step_diff(step_diff);
-
-                let new_tail_pos = if !Idx::are_touching(new_head_pos, cur_tail_pos) {
-                    cur_head_pos
-                } else {
-                    cur_tail_pos
-                };
-
-                self.head_pos = new_head_pos;
-                self.tail_pos = new_tail_pos;
-                visited.insert(self.tail_pos);
+            for step in 0..motion.steps {
+                for i in 0..self.positions.len() {
+                    let pos = self.positions[i];
+                    if i == 0 {
+                        // head
+                        self.positions[0] = pos.apply_step_diff(step_diff);
+                    } else {
+                        let in_front = self.positions[i - 1];
+                        let new_pos = pos.move_towards(in_front);
+                        self.positions[i] = new_pos;
+                    }
+                }
+                visited.insert(self.tail_pos());
             }
         }
+        Self::tail_display(&visited);
         visited.len()
+    }
+
+    fn big_display(&self) {
+        let mut s = String::new();
+        for row in (-15..=15) {
+            for col in (-20..=15) {
+                let idx = Idx::new(col, row);
+                'find: {
+                    for (i, pos) in self.positions.iter().enumerate() {
+                        if *pos == idx {
+                            s.push_str(&i.to_string());
+                            break 'find;
+                        }
+                    }
+                    s.push('.');
+                }
+            }
+            s.push('\n');
+        }
+        println!("{}", s);
+    }
+
+    fn tail_display(positions: &HashSet<Idx>) {
+        let mut s = String::new();
+        for row in (-15..=15) {
+            for col in (-15..=15) {
+                match positions.contains(&Idx::new(col, row)) {
+                    true => s.push('#'),
+                    false => s.push('.'),
+                }
+            }
+            s.push('\n');
+        }
+        println!("{}", s);
     }
 }
 
 #[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
-struct Idx {
+pub struct Idx {
     column: isize,
     row: isize,
 }
 
 impl Idx {
-    fn new(column: isize, row: isize) -> Self {
+    pub fn new(column: isize, row: isize) -> Self {
         Self { column, row }
+    }
+
+    fn move_towards(&self, target: Self) -> Self {
+        if Self::are_touching(*self, target) {
+            *self
+        } else {
+            let col_diff = target.column - self.column;
+            let row_diff = target.row - self.row;
+
+            match (col_diff.abs(), row_diff.abs()) {
+                (0, 2) => {
+                    // move vertically 1 step
+                    self.apply_step_diff((0, row_diff.signum()))
+                }
+                (2, 0) => {
+                    // move horizontally 1 step
+                    self.apply_step_diff((col_diff.signum(), 0))
+                }
+                (1, 2) | (2, 1) | (2, 2) => {
+                    // move diagonally towards the target
+                    self.apply_step_diff((col_diff.signum(), row_diff.signum()))
+                }
+                invalid => {
+                    panic!(
+                        "invalid diff: {:?} between {} and {}",
+                        invalid, self, target
+                    )
+                }
+            }
+        }
     }
 
     fn are_touching(a: Self, b: Self) -> bool {
@@ -73,6 +139,12 @@ impl Idx {
     }
 }
 
+impl Display for Idx {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({},{})", self.column, self.row)
+    }
+}
+
 pub struct Motion {
     direction: Direction,
     steps: usize,
@@ -93,6 +165,12 @@ impl FromStr for Motion {
         let dir = Direction::from_str(parts[0])?;
         let steps = parts[1].parse().map_err(|_| ())?;
         Ok(Self::new(dir, steps))
+    }
+}
+
+impl Display for Motion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {}", self.direction, self.steps)
     }
 }
 
@@ -125,5 +203,20 @@ impl FromStr for Direction {
             "R" => Self::Right,
             e => return Err(()),
         })
+    }
+}
+
+impl Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Direction::Up => "U",
+                Direction::Down => "D",
+                Direction::Left => "L",
+                Direction::Right => "R",
+            }
+        )
     }
 }

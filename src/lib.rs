@@ -478,10 +478,10 @@ mod day8 {
 
 mod day9 {
     use super::*;
-    use crate::rope::{Motion, RopeSim};
+    use crate::rope::{Idx, Motion, RopeSim};
 
     fn solve_part1_from_file(path: &str) -> usize {
-        let mut rope_sim = RopeSim::new();
+        let mut rope_sim = RopeSim::new(vec![Idx::new(0, 0); 2]);
 
         let motions: Vec<_> = read_lines_from_file(path)
             .iter()
@@ -490,13 +490,40 @@ mod day9 {
 
         rope_sim.tail_visits(&motions)
     }
+
+    fn solve_part2_from_file(path: &str) -> usize {
+        let mut rope_sim = RopeSim::new(vec![Idx::new(0, 0); 10]);
+
+        let motions: Vec<_> = read_lines_from_file(path)
+            .iter()
+            .map(|p| p.parse::<Motion>().unwrap())
+            .collect();
+
+        rope_sim.tail_visits(&motions)
+    }
+
     #[test]
     fn part1_example1() {
-        assert_eq!(solve_part1_from_file("inputs/day9_example.txt"), 13);
+        assert_eq!(solve_part1_from_file("inputs/day9_example1.txt"), 13);
     }
 
     #[test]
     fn part1() {
         assert_eq!(solve_part1_from_file("inputs/day9.txt"), 6023);
+    }
+
+    #[test]
+    fn part2_example1() {
+        assert_eq!(solve_part2_from_file("inputs/day9_example1.txt"), 1);
+    }
+
+    #[test]
+    fn part2_example2() {
+        assert_eq!(solve_part2_from_file("inputs/day9_example2.txt"), 36);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day9.txt"), 2533);
     }
 }
