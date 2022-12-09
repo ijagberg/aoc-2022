@@ -11,6 +11,7 @@ mod crate_stack;
 mod file_system;
 mod marker;
 mod rock_paper_scissors;
+mod rope;
 mod rucksack;
 mod trees;
 
@@ -472,5 +473,30 @@ mod day8 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day8.txt"), 345168);
+    }
+}
+
+mod day9 {
+    use super::*;
+    use crate::rope::{Motion, RopeSim};
+
+    fn solve_part1_from_file(path: &str) -> usize {
+        let mut rope_sim = RopeSim::new();
+
+        let motions: Vec<_> = read_lines_from_file(path)
+            .iter()
+            .map(|p| p.parse::<Motion>().unwrap())
+            .collect();
+
+        rope_sim.tail_visits(&motions)
+    }
+    #[test]
+    fn part1_example1() {
+        assert_eq!(solve_part1_from_file("inputs/day9_example.txt"), 13);
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day9.txt"), 6023);
     }
 }
