@@ -121,17 +121,7 @@ impl Idx {
         let col_diff = a.column.abs_diff(b.column);
         let row_diff = a.row.abs_diff(b.row);
         // diagonal special case
-        if col_diff == 1 && row_diff == 1 {
-            true
-        } else if col_diff == 1 && row_diff == 0 {
-            true
-        } else if col_diff == 0 && row_diff == 1 {
-            true
-        } else if col_diff == 0 && row_diff == 0 {
-            true
-        } else {
-            false
-        }
+        (col_diff == 0 || col_diff == 1) && (row_diff == 0 || row_diff == 1)
     }
 
     fn apply_step_diff(&self, diff: (isize, isize)) -> Self {

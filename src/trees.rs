@@ -74,9 +74,7 @@ impl Trees {
             }
         }
 
-        let score = up_score * down_score * left_score * right_score;
-
-        score
+        up_score * down_score * left_score * right_score
     }
 
     pub fn count_visible(&self) -> usize {

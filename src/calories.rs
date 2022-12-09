@@ -19,7 +19,7 @@ impl Elves {
         let mut calories: Vec<u32> = self.elves.iter().map(|e| e.total_calories()).collect();
         calories.sort();
 
-        calories[calories.len() - 3..].into_iter().sum()
+        calories[calories.len() - 3..].iter().sum()
     }
 }
 

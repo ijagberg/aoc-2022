@@ -34,12 +34,7 @@ mod day1 {
         let groups: Vec<_> = lines.split(|s| s.is_empty()).collect();
         let mut elves = Vec::new();
         for group in groups {
-            let elf = Elf::new(
-                group
-                    .into_iter()
-                    .map(|s| s.parse::<u32>().unwrap())
-                    .collect(),
-            );
+            let elf = Elf::new(group.iter().map(|s| s.parse::<u32>().unwrap()).collect());
             elves.push(elf);
         }
 
@@ -53,12 +48,7 @@ mod day1 {
         let groups: Vec<_> = lines.split(|s| s.is_empty()).collect();
         let mut elves = Vec::new();
         for group in groups {
-            let elf = Elf::new(
-                group
-                    .into_iter()
-                    .map(|s| s.parse::<u32>().unwrap())
-                    .collect(),
-            );
+            let elf = Elf::new(group.iter().map(|s| s.parse::<u32>().unwrap()).collect());
             elves.push(elf);
         }
 
@@ -182,9 +172,9 @@ mod day3 {
             let r1 = Rucksack::new(chunk[0].clone());
             let r2 = Rucksack::new(chunk[1].clone());
             let r3 = Rucksack::new(chunk[2].clone());
-            let rucksack1: HashSet<_> = r1.items().into_iter().collect();
-            let rucksack2: HashSet<_> = r2.items().into_iter().collect();
-            let rucksack3: HashSet<_> = r3.items().into_iter().collect();
+            let rucksack1: HashSet<_> = r1.items().iter().collect();
+            let rucksack2: HashSet<_> = r2.items().iter().collect();
+            let rucksack3: HashSet<_> = r3.items().iter().collect();
 
             let intersection_1_2: HashSet<_> =
                 rucksack1.intersection(&rucksack2).copied().collect();

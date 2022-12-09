@@ -53,7 +53,7 @@ impl FileSystem {
         for file_or_dir in self
             .contents
             .get(dir)
-            .expect(&format!("no entry for dir '{dir}'"))
+            .unwrap_or_else(|| panic!("no entry for dir '{dir}'"))
         {
             size_sum += match file_or_dir {
                 FileOrDir::Dir { name } => self.dir_size(name),
@@ -77,9 +77,9 @@ pub fn traverse_file_system(lines: &[String]) -> FileSystem {
         let current_dir = dirs.last().unwrap();
 
         idx += 1;
-        if line.starts_with("$") {
+        if line.starts_with('$') {
             // command
-            let cmd = Command::from_str(&line).unwrap();
+            let cmd = Command::from_str(line).unwrap();
             match cmd {
                 Command::ChangeDirectory(dir) => {
                     if dir == ".." {
@@ -95,14 +95,14 @@ pub fn traverse_file_system(lines: &[String]) -> FileSystem {
                         break;
                     }
                     let ls_line = &lines[idx];
-                    if ls_line.starts_with("$") {
+                    if ls_line.starts_with('$') {
                         break;
                     } else if ls_line.starts_with("dir") {
                         let parts: Vec<_> = ls_line.split(' ').collect();
                         let name = format!("{}/{}", current_dir, parts[1].to_owned());
                         files
                             .entry(current_dir.to_owned())
-                            .or_insert(Vec::new())
+                            .or_default()
                             .push(FileOrDir::Dir { name });
                     } else {
                         let parts: Vec<_> = ls_line.split(' ').collect();
@@ -110,7 +110,7 @@ pub fn traverse_file_system(lines: &[String]) -> FileSystem {
                         let name = parts[1].to_owned();
                         files
                             .entry(current_dir.clone())
-                            .or_insert(Vec::new())
+                            .or_default()
                             .push(FileOrDir::File { name, size });
                     }
                     idx += 1;

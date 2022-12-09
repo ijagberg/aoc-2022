@@ -4,7 +4,7 @@ pub struct Rucksack {
 
 impl Rucksack {
     pub fn new(items: String) -> Rucksack {
-        let items: Vec<Item> = items.trim().chars().map(|c| Item::new(c)).collect();
+        let items: Vec<Item> = items.trim().chars().map(Item::new).collect();
 
         if items.len() % 2 != 0 {
             panic!()

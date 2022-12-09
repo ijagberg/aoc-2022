@@ -13,13 +13,7 @@ impl AssignmentPair {
 
     pub fn overlaps(&self) -> bool {
         let (a, b) = (self.a, self.b);
-        if (a.0 <= b.0) && (a.1 >= b.1) {
-            true
-        } else if (b.0 <= a.0) && (b.1 >= a.1) {
-            true
-        } else {
-            false
-        }
+        (a.0 <= b.0) && (a.1 >= b.1) || (b.0 <= a.0) && (b.1 >= a.1)
     }
 
     pub fn partially_overlaps(&self) -> bool {
