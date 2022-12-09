@@ -12,6 +12,7 @@ mod file_system;
 mod marker;
 mod rock_paper_scissors;
 mod rucksack;
+mod trees;
 
 fn read_lines_from_file(file: &str) -> Vec<String> {
     let file = File::open(file).unwrap();
@@ -421,5 +422,55 @@ mod day7 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day7.txt"), 9847279);
+    }
+}
+
+mod day8 {
+    use super::*;
+    use crate::trees::{Tree, Trees};
+    use simple_grid::Grid;
+
+    fn populate_grid_from_file(path: &str) -> Trees {
+        let lines = read_lines_from_file(path);
+        let width = lines[0].len();
+        let height = lines.len();
+        let data: Vec<_> = lines
+            .join("")
+            .chars()
+            .map(|c| Tree::new(c.to_digit(10).unwrap()))
+            .collect();
+
+        let grid = Grid::new(width, height, data);
+        Trees::new(grid)
+    }
+
+    fn solve_part1_from_file(path: &str) -> usize {
+        let trees = populate_grid_from_file(path);
+        trees.count_visible()
+    }
+
+    fn solve_part2_from_file(path: &str) -> u32 {
+        let trees = populate_grid_from_file(path);
+        trees.best_scenic_score()
+    }
+
+    #[test]
+    fn part1_example1() {
+        assert_eq!(solve_part1_from_file("inputs/day8_example.txt"), 21);
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day8.txt"), 1785);
+    }
+
+    #[test]
+    fn part2_example1() {
+        assert_eq!(solve_part2_from_file("inputs/day8_example.txt"), 8);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day8.txt"), 345168);
     }
 }
