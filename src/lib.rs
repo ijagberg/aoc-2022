@@ -7,6 +7,7 @@ use std::{
 
 mod assignment_pairs;
 mod calories;
+mod cpu;
 mod crate_stack;
 mod file_system;
 mod marker;
@@ -515,5 +516,46 @@ mod day9 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day9.txt"), 2533);
+    }
+}
+
+mod day10 {
+    use super::*;
+    use crate::cpu::{Cpu, Instruction};
+    use simple_grid::Grid;
+
+    fn solve_from_file(path: &str) -> (Grid<char>, i64) {
+        let mut cpu = Cpu::new();
+        let instructions: Vec<Instruction> = read_lines_from_file(path)
+            .iter()
+            .map(|p| p.parse().unwrap())
+            .collect();
+
+        cpu.run(&instructions)
+    }
+
+    #[test]
+    fn part1_example1() {
+        assert_eq!(solve_from_file("inputs/day10_example1.txt").1, 13140);
+    }
+
+    #[test]
+    fn part1() {
+        let (_, signal) = solve_from_file("inputs/day10.txt");
+        assert_eq!(signal, 16020);
+    }
+
+    #[test]
+    fn part2_example1() {
+        let (grid, _) = solve_from_file("inputs/day10_example1.txt");
+        println!("{}", grid.to_pretty_string());
+        assert_eq!(1, 1);
+    }
+
+    #[test]
+    fn part2() {
+        let (grid, _) = solve_from_file("inputs/day10.txt");
+        println!("{}", grid.to_pretty_string());
+        assert_eq!("ECZUZALR", "ECZUZALR"); // capital letters in the output above
     }
 }
