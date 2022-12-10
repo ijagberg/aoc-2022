@@ -30,21 +30,12 @@ impl Cpu {
             }
             instruction_progress += 1;
 
-            println!(
-                "begin cycle {}, current instruction is {}, drawing at {}, sprite pos is {}",
-                cycle,
-                current_instruction,
-                cycle - 1,
-                self.register
-            );
-
             if self.crt_overlaps(cycle - 1) {
                 grid_data[cycle - 1] = '#';
             }
 
             if Self::is_interesting_cycle(cycle) {
                 let signal_strength = cycle as i64 * self.register;
-                println!("interesting cycle, signal strength is {signal_strength}");
                 sum_of_signal_strength += signal_strength;
             }
 
@@ -53,10 +44,8 @@ impl Cpu {
                     Instruction::Add(v) => self.register += v,
                     Instruction::NoOp => (),
                 }
-                // println!("completed instruction {}", current_instruction);
                 get_instruction = true;
             }
-            println!("end cycle {}, sprite pos is {}", cycle, self.register);
         }
         (Grid::new(40, 6, grid_data), sum_of_signal_strength)
     }
