@@ -10,12 +10,12 @@ impl Monkeys {
         Self { monkeys }
     }
 
-    pub fn run_once(&mut self, worry_decrease: bool) {
+    pub fn run_once<F: Fn(u128) -> u128>(&mut self, worry_decreaser: &F) {
         let acc_test = self.acc_test();
         for i in 0..self.monkeys.len() {
             let monkey = &mut self.monkeys[i];
             let mut throws = Vec::new();
-            while let Some((item, target)) = monkey.take_turn(worry_decrease, acc_test) {
+            while let Some((item, target)) = monkey.take_turn(worry_decreaser) {
                 throws.push((item, target));
             }
 
@@ -29,7 +29,7 @@ impl Monkeys {
         self.monkeys.iter().map(|m| m.total_inspections).collect()
     }
 
-    fn acc_test(&self) -> u128 {
+    pub fn acc_test(&self) -> u128 {
         self.monkeys.iter().map(|m| m.test).product()
     }
 }
@@ -65,39 +65,29 @@ impl Monkey {
         }
     }
 
-    fn take_turn(&mut self, worry_decrease: bool, acc_test: u128) -> Option<(Item, usize)> {
+    fn take_turn<F: Fn(u128) -> u128>(&mut self, worry_decreaser: F) -> Option<(Item, usize)> {
         // println!("Monkey {}'s turn...", self.id);
         if let Some(Item(worry_value)) = self.holding.pop_front() {
             self.total_inspections += 1;
             let mut new_worry = self.get_new_value(worry_value);
-            if worry_decrease {
-                new_worry /= 3;
-            }
             // println!(
             //     "{}: Inspecting item of value {}, new value is {}",
             //     self.id, worry_value, new_worry
             // );
 
+            new_worry = worry_decreaser(new_worry);
             if new_worry % self.test == 0 {
-                if worry_decrease {
-                    Some((Item(new_worry), self.true_target))
-                } else {
-                    // println!(
-                    //     "{}: {} is divisible by {}, throwing to {}",
-                    //     self.id, new_worry, self.test, self.true_target
-                    // );
-                    Some((Item(new_worry % acc_test), self.true_target))
-                }
+                // println!(
+                //     "{}: {} is divisible by {}, throwing to {}",
+                //     self.id, new_worry, self.test, self.true_target
+                // );
+                Some((Item(new_worry), self.true_target))
             } else {
-                if worry_decrease {
-                    Some((Item(new_worry), self.false_target))
-                } else {
-                    // println!(
-                    //     "{}: {} isn ot divisible by {}, throwing to {}",
-                    //     self.id, new_worry, self.test, self.false_target
-                    // );
-                    Some((Item(new_worry % acc_test), self.false_target))
-                }
+                // println!(
+                //     "{}: {} isn ot divisible by {}, throwing to {}",
+                //     self.id, new_worry, self.test, self.false_target
+                // );
+                Some((Item(new_worry), self.false_target))
             }
         } else {
             None

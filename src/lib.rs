@@ -619,7 +619,7 @@ mod day11 {
     fn solve_part1_from_file(path: &str) -> u128 {
         let mut monkeys = parse_monkeys_from_file(path);
         for turn in 0..20 {
-            monkeys.run_once(true);
+            monkeys.run_once(&|x| x / 3);
         }
 
         let mut inspection_counts: Vec<_> = monkeys
@@ -637,8 +637,9 @@ mod day11 {
 
     fn solve_part2_from_file(path: &str) -> u128 {
         let mut monkeys = parse_monkeys_from_file(path);
+        let acc_test = monkeys.acc_test();
         for turn in 0..10000 {
-            monkeys.run_once(false);
+            monkeys.run_once(&|x| x % acc_test);
         }
 
         let mut inspection_counts: Vec<_> = monkeys
