@@ -11,6 +11,7 @@ mod cpu;
 mod crate_stack;
 mod file_system;
 mod marker;
+mod monkeys;
 mod rock_paper_scissors;
 mod rope;
 mod rucksack;
@@ -557,5 +558,122 @@ mod day10 {
         let (grid, _) = solve_from_file("inputs/day10.txt");
         println!("{}", grid.to_pretty_string());
         assert_eq!("ECZUZALR", "ECZUZALR"); // capital letters in the output above
+    }
+}
+
+mod day11 {
+    use std::str::FromStr;
+
+    use super::*;
+    use crate::monkeys::{Monkey, Monkeys, OldOrConstant, Operand};
+
+    fn parse_monkeys_from_file(path: &str) -> Monkeys {
+        let mut monkeys = Vec::new();
+
+        let lines = read_lines_from_file(path);
+        for (id, m) in lines.chunks(7).enumerate() {
+            //0: Monkey 0:
+            //1: Starting items: 79, 98
+            //2: Operation: new = old * 19
+            //3: Test: divisible by 23
+            //4:   If true: throw to monkey 2
+            //5:   If false: throw to monkey 3
+            //6:
+            let mut starting_items: Vec<u128> = m[1]
+                .trim_start()
+                .trim_start_matches("Starting items: ")
+                .split(", ")
+                .map(|p| {
+                    p.parse()
+                        .unwrap_or_else(|pa| panic!("tried to parse {} as num", p))
+                })
+                .collect();
+            let operation_parts: Vec<_> = m[2]
+                .trim_start()
+                .trim_start_matches("Operation: new = ")
+                .split(' ')
+                .collect();
+            let l = OldOrConstant::from_str(operation_parts[0]).unwrap();
+            let op = Operand::from_str(operation_parts[1]).unwrap();
+            let r = OldOrConstant::from_str(operation_parts[2]).unwrap();
+            let test: u128 = m[3]
+                .trim_start()
+                .trim_start_matches("Test: divisible by ")
+                .parse()
+                .unwrap();
+            let true_target: usize = m[4].split(' ').last().unwrap().parse().unwrap();
+            let false_target: usize = m[5].split(' ').last().unwrap().parse().unwrap();
+            monkeys.push(Monkey::new(
+                id,
+                starting_items,
+                (l, op, r),
+                test,
+                true_target,
+                false_target,
+            ));
+        }
+
+        Monkeys::new(monkeys)
+    }
+
+    fn solve_part1_from_file(path: &str) -> u128 {
+        let mut monkeys = parse_monkeys_from_file(path);
+        for turn in 0..20 {
+            monkeys.run_once(true);
+        }
+
+        let mut inspection_counts: Vec<_> = monkeys
+            .inspection_counts()
+            .into_iter()
+            .enumerate()
+            .collect();
+
+        inspection_counts.sort_by_key(|(idx, count)| *count);
+        inspection_counts[inspection_counts.len() - 2..]
+            .into_iter()
+            .map(|(_, count)| count)
+            .product()
+    }
+
+    fn solve_part2_from_file(path: &str) -> u128 {
+        let mut monkeys = parse_monkeys_from_file(path);
+        for turn in 0..10000 {
+            monkeys.run_once(false);
+        }
+
+        let mut inspection_counts: Vec<_> = monkeys
+            .inspection_counts()
+            .into_iter()
+            .enumerate()
+            .collect();
+
+        inspection_counts.sort_by_key(|(idx, count)| *count);
+        inspection_counts[inspection_counts.len() - 2..]
+            .into_iter()
+            .map(|(_, count)| count)
+            .product()
+    }
+
+    #[test]
+    fn part1_example1() {
+        assert_eq!(solve_part1_from_file("inputs/day11_example1.txt"), 10605);
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day11.txt"), 316888);
+    }
+
+    #[test]
+    fn part2_example1() {
+        assert_eq!(
+            solve_part2_from_file("inputs/day11_example1.txt"),
+            2713310158
+        );
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day11.txt"), 35270398814);
     }
 }
