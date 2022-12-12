@@ -10,6 +10,7 @@ mod calories;
 mod cpu;
 mod crate_stack;
 mod file_system;
+mod hills;
 mod marker;
 mod monkeys;
 mod rock_paper_scissors;
@@ -676,5 +677,51 @@ mod day11 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day11.txt"), 35270398814);
+    }
+}
+
+mod day12 {
+    use crate::hills::Hills;
+
+    use super::*;
+
+    fn parse_hills_from_file(path: &str) -> Hills {
+        let lines = read_lines_from_file(path);
+        let width = lines[0].len();
+        let height = lines.len();
+
+        let data = lines.join("").chars().collect();
+
+        Hills::new(width, height, data)
+    }
+
+    fn solve_part1_from_file(path: &str) -> u32 {
+        let hills = parse_hills_from_file(path);
+        hills.find_shortest_path().unwrap()
+    }
+
+    fn solve_part2_from_file(path: &str) -> u32 {
+        let hills = parse_hills_from_file(path);
+        hills.find_shortest_hike().unwrap()
+    }
+
+    #[test]
+    fn part1_example1() {
+        assert_eq!(solve_part1_from_file("inputs/day12_example1.txt"), 31);
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day12.txt"), 352);
+    }
+
+    #[test]
+    fn part2_example1() {
+        assert_eq!(solve_part2_from_file("inputs/day12_example1.txt"), 29);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day12.txt"), 345);
     }
 }
