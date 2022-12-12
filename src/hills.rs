@@ -51,7 +51,6 @@ impl Hills {
         while let Some((steps, current_idx)) = to_visit.pop_front() {
             visited.insert(current_idx);
             let current = &self.grid[current_idx];
-            println!("visiting {} at {}", current.0, current_idx);
             if current.is_hike_start() {
                 return Some(steps);
             }
