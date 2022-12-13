@@ -13,6 +13,7 @@ mod file_system;
 mod hills;
 mod marker;
 mod monkeys;
+mod pairs;
 mod rock_paper_scissors;
 mod rope;
 mod rucksack;
@@ -723,5 +724,97 @@ mod day12 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day12.txt"), 345);
+    }
+}
+
+mod day13 {
+    use super::*;
+    use crate::pairs::ListOrValue;
+
+    fn parse_list_or_values_from_file(path: &str) -> Vec<ListOrValue> {
+        let lines = read_lines_from_file(path);
+        lines
+            .into_iter()
+            .filter(|l| !l.trim().is_empty())
+            .map(|l| ListOrValue::parse(&l.chars().collect::<Vec<char>>()).unwrap())
+            .collect()
+    }
+
+    fn solve_part1_from_file(path: &str) -> usize {
+        let mut correct_pairs = 0;
+
+        let list_or_values = parse_list_or_values_from_file(path);
+        for (idx, chunk) in list_or_values.chunks(2).enumerate() {
+            let idx = idx + 1;
+            let left = &chunk[0];
+            let right = &chunk[1];
+
+            match ListOrValue::compare(&left, &right) {
+                std::cmp::Ordering::Less => {
+                    correct_pairs += idx;
+                }
+                std::cmp::Ordering::Equal => {
+                    correct_pairs += idx;
+                }
+                std::cmp::Ordering::Greater => {}
+            }
+        }
+        correct_pairs
+    }
+
+    fn solve_part2_from_file(path: &str) -> usize {
+        let decoder_2 = ListOrValue::List(vec![Box::new(ListOrValue::List(vec![Box::new(
+            ListOrValue::Value(2),
+        )]))]);
+        let decoder_6 = ListOrValue::List(vec![Box::new(ListOrValue::List(vec![Box::new(
+            ListOrValue::Value(6),
+        )]))]);
+        let mut list_or_values = parse_list_or_values_from_file(path);
+        list_or_values.push(decoder_2.clone());
+        list_or_values.push(decoder_6.clone());
+
+        list_or_values.sort_by(|left, right| ListOrValue::compare(left, right));
+
+        println!(
+            "{}",
+            list_or_values
+                .iter()
+                .map(|l| l.to_string())
+                .collect::<Vec<_>>()
+                .join("\n")
+        );
+
+        let mut idx_of_2 = None;
+        let mut idx_of_6 = None;
+        for (idx, item) in list_or_values.iter().enumerate() {
+            let idx = idx + 1;
+            if item == &decoder_2 {
+                idx_of_2 = Some(idx);
+            } else if item == &decoder_6 {
+                idx_of_6 = Some(idx);
+            }
+        }
+
+        idx_of_2.unwrap() * idx_of_6.unwrap()
+    }
+
+    #[test]
+    fn part1_example1() {
+        assert_eq!(solve_part1_from_file("inputs/day13_example1.txt"), 13);
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day13.txt"), 5198);
+    }
+
+    #[test]
+    fn part2_example1() {
+        assert_eq!(solve_part2_from_file("inputs/day13_example1.txt"), 140);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day13.txt"), 22344);
     }
 }
