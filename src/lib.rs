@@ -18,6 +18,7 @@ mod rock_paper_scissors;
 mod rope;
 mod rucksack;
 mod trees;
+mod waterfall;
 
 fn read_lines_from_file(file: &str) -> Vec<String> {
     let file = File::open(file).unwrap();
@@ -816,5 +817,85 @@ mod day13 {
     #[test]
     fn part2() {
         assert_eq!(solve_part2_from_file("inputs/day13.txt"), 22344);
+    }
+}
+
+mod day14 {
+    use super::*;
+    use crate::waterfall::{Coord, SimulationResult, Waterfall};
+
+    fn populate_waterfall_from_file(waterfall: &mut Waterfall, path: &str) {
+        for line in read_lines_from_file(path) {
+            let parts: Vec<(isize, isize)> = line
+                .split(" -> ")
+                .map(|p| {
+                    let x_y: Vec<isize> = p.split(',').map(|n| n.parse().unwrap()).collect();
+                    (x_y[0], x_y[1])
+                })
+                .collect();
+            for w in parts.windows(2) {
+                let (from, to) = (w[0], w[1]);
+                waterfall.add_rock_line(Coord::new(from.0, from.1), Coord::new(to.0, to.1));
+            }
+        }
+    }
+
+    fn solve_part1_from_file(path: &str) -> u32 {
+        let mut waterfall = Waterfall::new(false);
+
+        populate_waterfall_from_file(&mut waterfall, path);
+
+        let mut count = 0;
+        for sand in 1.. {
+            if let Some(SimulationResult::Abyss(_column)) =
+                waterfall.simulate_sand(Coord::new(500, 0))
+            {
+                count = sand - 1;
+                break;
+            }
+        }
+
+        // println!("{}", waterfall.nice_string());
+        count
+    }
+
+    fn solve_part2_from_file(path: &str) -> u32 {
+        let mut waterfall = Waterfall::new(true);
+
+        populate_waterfall_from_file(&mut waterfall, path);
+
+        let source = Coord::new(500, 0);
+        let mut count = 0;
+        for sand in 1.. {
+            if let Some(SimulationResult::Resting(c)) = waterfall.simulate_sand(source) {
+                if c == source {
+                    count = sand;
+                    break;
+                }
+            }
+        }
+
+        println!("{}", waterfall.nice_string());
+        count
+    }
+
+    #[test]
+    fn part1_example1() {
+        assert_eq!(solve_part1_from_file("inputs/day14_example1.txt"), 24);
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(solve_part1_from_file("inputs/day14.txt"), 745);
+    }
+
+    #[test]
+    fn part2_example1() {
+        assert_eq!(solve_part2_from_file("inputs/day14_example1.txt"), 93);
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(solve_part2_from_file("inputs/day14.txt"), 27551);
     }
 }
