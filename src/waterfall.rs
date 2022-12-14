@@ -72,6 +72,10 @@ impl Waterfall {
     }
 
     pub fn simulate_sand(&mut self, mut coord: Coord) -> Option<SimulationResult> {
+        match self.get_tile(coord) {
+            Tile::Rock | Tile::Sand => return None,
+            _ => (),
+        }
         loop {
             if !self.has_floor && coord.y() > self.bottom {
                 // falling into abyss
